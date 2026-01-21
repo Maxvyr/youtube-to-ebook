@@ -269,6 +269,45 @@ def create_newsletter_html(articles):
     return html
 
 
+def save_newsletter_archive(html_content, epub_path, articles):
+    """
+    Save a copy of the newsletter for viewing in the archive.
+    """
+    newsletters_dir = os.path.join(os.path.dirname(__file__), "newsletters")
+    os.makedirs(newsletters_dir, exist_ok=True)
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    date_display = datetime.now().strftime("%B %d, %Y")
+
+    # Save HTML
+    html_path = os.path.join(newsletters_dir, f"newsletter_{timestamp}.html")
+    with open(html_path, "w") as f:
+        f.write(html_content)
+
+    # Copy EPUB
+    import shutil
+    epub_archive_path = os.path.join(newsletters_dir, f"newsletter_{timestamp}.epub")
+    shutil.copy(epub_path, epub_archive_path)
+
+    # Save metadata
+    metadata = {
+        "date": date_display,
+        "timestamp": timestamp,
+        "article_count": len(articles),
+        "channels": [a["channel"] for a in articles],
+        "titles": [a["title"] for a in articles],
+        "html_file": f"newsletter_{timestamp}.html",
+        "epub_file": f"newsletter_{timestamp}.epub"
+    }
+
+    metadata_path = os.path.join(newsletters_dir, f"newsletter_{timestamp}.json")
+    import json
+    with open(metadata_path, "w") as f:
+        json.dump(metadata, f, indent=2)
+
+    print(f"  ✓ Saved newsletter to archive")
+
+
 def send_newsletter(articles, recipient_email=None):
     """
     Send the newsletter via Gmail with EPUB attachment.
@@ -335,6 +374,9 @@ def send_newsletter(articles, recipient_email=None):
             server.sendmail(GMAIL_ADDRESS, recipient_email, msg.as_string())
 
         print("✓ Newsletter sent successfully with EPUB attachment!")
+
+        # Save to archive before cleaning up
+        save_newsletter_archive(html_content, epub_path, articles)
 
         # Clean up EPUB file
         os.remove(epub_path)

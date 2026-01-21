@@ -5,6 +5,7 @@
 processed_videos.json
 *.epub
 logs/
+newsletters/
 
 # Python
 __pycache__/
