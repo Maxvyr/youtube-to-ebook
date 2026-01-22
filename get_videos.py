@@ -19,14 +19,10 @@ YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 # Example: youtube.com/@MrBeast → use "@MrBeast"
 # ========================================
 CHANNELS = [
-    "@LatentSpacePod",
-    "@ycombinator",
-    "@a16z",
-    "@RedpointAI",
-    "@EveryInc",
-    "@DataDrivenNYC",
-    "@NoPriorsPodcast",
-    "@DwarkeshPatel",
+"@aliabdaal",
+"@t3dotgg",
+"@AlexFinnOfficial",
+"@maximevidalinc"
 ]
 
 

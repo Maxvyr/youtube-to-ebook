@@ -1,11 +1,11 @@
 ---
 name: youtube-to-ebook
-description: Transform YouTube videos into beautifully formatted ebook articles with transcripts
+description: Transforms YouTube video transcripts into magazine-style EPUB ebooks. Use when the user wants to convert YouTube videos to readable articles, generate ebooks from channel content, extract and reformat video transcripts, or set up a YouTube-to-ebook pipeline.
 ---
 
 # YouTube to Ebook
 
-Transform YouTube videos from your favorite channels into well-written magazine-style articles, delivered as an EPUB ebook.
+Transform YouTube videos from this channels into well-written magazine-style articles, delivered as an EPUB ebook.
 
 ## What This Skill Does
 
@@ -18,7 +18,7 @@ Transform YouTube videos from your favorite channels into well-written magazine-
 
 Ask: "Set up YouTube to ebook for me"
 
-I'll guide you through:
+Claude will guide you through:
 1. Creating a project folder
 2. Setting up YouTube API access
 3. Configuring your favorite channels
@@ -27,8 +27,6 @@ I'll guide you through:
 ## Requirements
 
 - Python 3.8+
-- YouTube Data API key (free from Google Cloud Console)
-- Anthropic API key (for Claude)
 
 ## Commands
 
@@ -41,100 +39,13 @@ I'll guide you through:
 ## Key Files
 
 ```
-youtube-newsletter/
-├── get_videos.py      # Fetch latest videos
+youtube-to-ebook/
+├── get_videos.py      # Fetch latest videos and channel list
 ├── get_transcripts.py # Extract transcripts
 ├── write_articles.py  # Transform to articles
 ├── send_email.py      # Create EPUB & send
 ├── main.py            # Run full pipeline
-├── channels.txt       # Your channel list
 └── .env               # API keys
-```
-
-## Known Pitfalls & Solutions
-
-### 1. YouTube Shorts Detection
-**Problem**: Filtering by duration doesn't work—some Shorts are longer than 60 seconds.
-
-**Solution**: Check if the `/shorts/` URL resolves:
-```python
-def is_youtube_short(video_id):
-    shorts_url = f"https://www.youtube.com/shorts/{video_id}"
-    response = requests.head(shorts_url, allow_redirects=True, timeout=5)
-    return "/shorts/" in response.url
-```
-
-### 2. Videos Not in Chronological Order
-**Problem**: YouTube Search API doesn't return truly chronological results.
-
-**Solution**: Use the channel's uploads playlist via `playlistItems` API:
-```python
-# Get uploads playlist ID from channel
-channel_info = youtube.channels().list(
-    part="contentDetails",
-    forHandle=handle
-).execute()
-uploads_playlist_id = channel_info["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
-
-# Fetch from uploads playlist (always chronological)
-youtube.playlistItems().list(
-    part="snippet",
-    playlistId=uploads_playlist_id,
-    maxResults=15
-).execute()
-```
-
-### 3. Transcript API Syntax
-**Problem**: `YouTubeTranscriptApi.get_transcript()` no longer works.
-
-**Solution**: Use instance method:
-```python
-from youtube_transcript_api import YouTubeTranscriptApi
-
-ytt_api = YouTubeTranscriptApi()
-transcript = ytt_api.fetch(video_id)
-```
-
-### 4. Rate Limiting on Transcripts
-**Problem**: Fetching many transcripts quickly triggers rate limits.
-
-**Solution**: Add 2-second delays between requests:
-```python
-import time
-for video in videos:
-    transcript = get_transcript(video["video_id"])
-    time.sleep(2)
-```
-
-### 5. Transcript Accuracy (Names, Terms)
-**Problem**: Auto-transcripts misspell names and technical terms.
-
-**Solution**: Include video title and description in Claude's context—these usually have correct spellings.
-
-### 6. Cloud Automation Blocked
-**Problem**: GitHub Actions and cloud servers are blocked by YouTube for transcript fetching.
-
-**Solution**: Run automation locally on your Mac using `launchd`:
-```xml
-<!-- ~/Library/LaunchAgents/com.youtube.ebook.plist -->
-<plist version="1.0">
-<dict>
-    <key>Label</key>
-    <string>com.youtube.ebook</string>
-    <key>ProgramArguments</key>
-    <array>
-        <string>/usr/bin/python3</string>
-        <string>/path/to/main.py</string>
-    </array>
-    <key>StartCalendarInterval</key>
-    <dict>
-        <key>Weekday</key>
-        <integer>3</integer>
-        <key>Hour</key>
-        <integer>7</integer>
-    </dict>
-</dict>
-</plist>
 ```
 
 ## Customization
@@ -145,13 +56,6 @@ Edit the prompt in `write_articles.py` to change article tone:
 - Academic summary
 - Casual blog post
 - Technical documentation
-
-### Email Delivery (Optional)
-Add Gmail credentials to `.env` to receive ebooks via email:
-```
-GMAIL_ADDRESS=your@gmail.com
-GMAIL_APP_PASSWORD=your-app-password
-```
 
 ## Workflow
 
