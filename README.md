@@ -8,15 +8,11 @@ Transform YouTube videos from your favorite channels into beautifully formatted 
 - Extracts transcripts from videos
 - Uses Claude AI to transform transcripts into polished magazine-style articles
 - Generates EPUB ebooks readable on any device
-- Optional: Email delivery with ebook attachment
-- Optional: Web dashboard for easy management
 
 ## Quick Start
 
-1. **Clone and install:**
+1. **Install dependencies:**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/youtube-to-ebook.git
-   cd youtube-to-ebook
    pip install -r requirements.txt
    ```
 
@@ -26,12 +22,13 @@ Transform YouTube videos from your favorite channels into beautifully formatted 
    # Edit .env with your keys
    ```
 
-3. **Add your channels:**
-   ```bash
-   # Edit channels.txt with YouTube channel handles
-   @mkbhd
-   @veritasium
-   @3blue1brown
+3. **Add your channels in `get_videos.py`:**
+   ```python
+   CHANNELS = [
+       "@mkbhd",
+       "@veritasium",
+       "@3blue1brown"
+   ]
    ```
 
 4. **Generate your ebook:**
@@ -53,28 +50,22 @@ Transform YouTube videos from your favorite channels into beautifully formatted 
 2. Create an API key
 3. Copy to `.env`
 
-## Web Dashboard
+## Project Structure
 
-Launch a friendly web interface:
-```bash
-pip install streamlit
-python -m streamlit run dashboard.py
 ```
-
-## Automation (Mac)
-
-Run automatically every week:
-```bash
-# Copy the plist to LaunchAgents
-cp com.youtube.newsletter.plist ~/Library/LaunchAgents/
-
-# Load it
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.youtube.newsletter.plist
+├── main.py                  # Run the full pipeline
+├── get_videos.py            # Fetch videos from YouTube (configure channels here)
+├── get_transcripts.py       # Extract video transcripts
+├── write_articles.py        # Transform to articles with Claude
+├── send_email.py            # Create EPUB & send email
+├── video_tracker.py         # Track processed videos
+├── processed_videos.json    # Database of processed videos
+├── requirements.txt         # Python dependencies
+├── .env                     # Your API keys (not committed)
+└── newsletters/             # Archive of generated ebooks
 ```
 
 ## Known Issues & Solutions
-
-This project documents several YouTube API quirks:
 
 | Problem | Solution |
 |---------|----------|
@@ -85,26 +76,3 @@ This project documents several YouTube API quirks:
 | Names misspelled in transcripts | Include video description in Claude context |
 
 See [SKILL.md](SKILL.md) for detailed explanations.
-
-## Project Structure
-
-```
-├── main.py              # Run the full pipeline
-├── get_videos.py        # Fetch videos from YouTube
-├── get_transcripts.py   # Extract video transcripts
-├── write_articles.py    # Transform to articles with Claude
-├── send_email.py        # Create EPUB & send email
-├── dashboard.py         # Streamlit web dashboard
-├── video_tracker.py     # Track processed videos
-├── channels.txt         # Your channel list
-├── .env                 # Your API keys (not committed)
-└── newsletters/         # Archive of generated ebooks
-```
-
-## License
-
-MIT - Use freely, modify as needed.
-
----
-
-Built with Claude AI
